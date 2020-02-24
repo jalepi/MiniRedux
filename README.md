@@ -1,5 +1,5 @@
 # MiniRedux
-A Minimalistic Redux implementation for .NET written in C#
+A Minimalist Redux implementation for .NET written in C#
 
 The classic Counter example
 
