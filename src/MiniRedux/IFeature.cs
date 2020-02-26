@@ -1,6 +1,6 @@
 ﻿namespace MiniRedux
 {
-    public interface IFeature<TState> : IMutable<TState>, IDispatcher
+    public interface IFeature<TState> : IMutable<TState>, IReducible
     {
     }
 }

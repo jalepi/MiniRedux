@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace MiniRedux
 {
@@ -9,9 +6,7 @@ namespace MiniRedux
     {
         public abstract Task React(TAction action, IDispatcher dispatcher);
 
-        virtual public Task React<TSome>(TSome some, IDispatcher dispatcher)
-        {
-            return some is TAction action ? React(action, dispatcher) : Task.CompletedTask;
-        }
+        virtual public Task React<TSome>(TSome some, IDispatcher dispatcher) =>
+            some is TAction action ? React(action, dispatcher) : Task.CompletedTask;
     }
 }

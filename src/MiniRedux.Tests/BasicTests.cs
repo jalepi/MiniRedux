@@ -18,7 +18,7 @@ namespace MiniRedux.Tests
                 });
 
             var store = new Store(
-                features: new IDispatcher[]
+                features: new IReducible[]
                 {
                     feature,
                 },
@@ -50,14 +50,15 @@ namespace MiniRedux.Tests
             var subscriber = new object();
             var observeCount = 0;
 
-            var subscription = feature.Subscribe((prev, curr) =>
+            void StateChangedHandler(object sender, IStateChangeEventArgs<CountState> stateChange)
             {
                 observeCount += 1;
-                return Task.CompletedTask;
-            });
+            }
+
+            feature.StateChanged += StateChangedHandler;
 
             var store = new Store(
-                features: new IDispatcher[]
+                features: new IReducible[]
                 {
                     feature,
                 },
@@ -78,7 +79,7 @@ namespace MiniRedux.Tests
             Assert.Equal(expected: 3, actual: feature.State.Count);
             Assert.Equal(expected: 3, actual: observeCount);
 
-            subscription.Dispose();
+            feature.StateChanged -= StateChangedHandler;
 
             await store.Dispatch(new IncrementAction(amount: 1));
             Assert.Equal(expected: 4, actual: feature.State.Count);
@@ -101,19 +102,15 @@ namespace MiniRedux.Tests
 
     class IncrementAction
     {
-        public IncrementAction(int amount = 1)
-        {
-            Amount = amount;
-        }
+        public IncrementAction(int amount = 1) => 
+            this.Amount = amount;
 
         public int Amount { get; }
     }
 
     class IncrementReducer : Reducer<CountState, IncrementAction>
     {
-        public override CountState Reduce(CountState state, IncrementAction action)
-        {
-            return new CountState(state.Count + action.Amount);
-        }
+        public override CountState Reduce(CountState state, IncrementAction action) =>
+            new CountState(state.Count + action.Amount);
     }
 }

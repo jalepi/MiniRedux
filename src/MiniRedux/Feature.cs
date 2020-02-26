@@ -10,9 +10,8 @@ namespace MiniRedux
         public Feature(TState state, IEnumerable<IReducer<TState>> reducers) : base(state) =>
             this.reducers = reducers;
 
-        public async Task Dispatch<TAction>(TAction action)
+        public void Reduce<TAction>(TAction action)
         {
-            var previousState = this.State;
             var currentState = this.State;
 
             foreach (var reducer in reducers)
@@ -23,10 +22,7 @@ namespace MiniRedux
                 }
             }
 
-            if (this.SetState(currentState))
-            {
-                await NotifySubscribers(previousState, currentState);
-            }
+            this.SetState(currentState);
         }
     }
 }

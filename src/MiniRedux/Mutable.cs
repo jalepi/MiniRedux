@@ -6,7 +6,6 @@ namespace MiniRedux
 {
     public class Mutable<TState> : IMutable<TState>
     {
-        private readonly IList<Func<TState, TState, Task>> subscribers = new List<Func<TState, TState, Task>>();
         public Mutable(TState state)
         {
             State = state;
@@ -17,39 +16,17 @@ namespace MiniRedux
 
         public event StateChangedHandler<TState> StateChanged;
 
-        delegate TResult Fn<in T, out TResult>(T t);
-        public IDisposable Subscribe(Func<TState, TState, Task> handler)
-        {
-            lock (subscribers) { subscribers.Add(handler); }
-            return new DisposeInvoker(() =>
-            {
-                lock (subscribers) { subscribers.Remove(handler); }
-            });
-        }
-
         protected virtual bool SetState(TState state)
         {
             if (!Object.ReferenceEquals(State, state))
             {
-                State = state;
+                var (previous, next) = (this.State, state);
+                State = next;
+                
+                StateChanged.Invoke(this, new StateChangeEventArgs<TState>(previous, next));
                 return true;
             }
             return false;
-        }
-
-        protected virtual async Task NotifySubscribers(TState previousState, TState currentState)
-        {
-            foreach (var handler in subscribers)
-            {
-                await handler(previousState, currentState);
-            }
-        }
-
-        private class DisposeInvoker : IDisposable
-        {
-            private readonly Action action;
-            public DisposeInvoker(Action action) => this.action = action;
-            public void Dispose() => this.action();
         }
     }
 }

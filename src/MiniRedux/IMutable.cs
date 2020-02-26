@@ -7,6 +7,5 @@ namespace MiniRedux
     {
         TState State { get; }
         event StateChangedHandler<TState> StateChanged;
-        IDisposable Subscribe(Func<TState, TState, Task> handler);
     }
 }
