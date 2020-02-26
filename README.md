@@ -15,35 +15,31 @@ class CountState
 
 class IncrementAction
 {
-    public IncrementAction(int amount = 1)
-    {
-        Amount = amount;
-    }
+    public IncrementAction(int amount = 1) => 
+        this.Amount = amount;
 
     public int Amount { get; }
 }
 
 class IncrementReducer : Reducer<CountState, IncrementAction>
 {
-    public override CountState Reduce(CountState state, IncrementAction action)
-    {
-        return new CountState(state.Count + action.Amount);
-    }
+    public override CountState Reduce(CountState state, IncrementAction action) =>
+        new CountState(state.Count + action.Amount);
 }
 ```
 
 Bootstrapping
 
 ```csharp
-var state = new CountState(count: 0);
+var state = new CountState(0);
 
-var feature = new Feature<CountState>(state, reducers: new[]
+var feature = new Feature<CountState>(state, reducers: new IReducer<CountState>[]
 {
     new IncrementReducer(),
 });
 
-var store = new Store(features: new[] 
-{ 
+var store = new Store(features: new IReducible[]
+{
     feature,
 });
 ```
