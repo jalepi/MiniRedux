@@ -10,22 +10,15 @@ namespace MiniRedux.Tests
         {
             var state = new CountState(0);
 
-            var feature = new Feature<CountState>(
-                state: state,
-                reducers: new IReducer<CountState>[]
-                {
-                    new IncrementReducer(),
-                });
+            var feature = new Feature<CountState>(state, reducers: new IReducer<CountState>[]
+            {
+                new IncrementReducer(),
+            });
 
-            var store = new Store(
-                features: new IReducible[]
-                {
-                    feature,
-                },
-                effects: new IEffect[]
-                {
-
-                });
+            var store = new Store(features: new IReducible[]
+            {
+                feature,
+            });
 
             Assert.Equal(expected: 0, actual: feature.State.Count);
 
@@ -34,18 +27,20 @@ namespace MiniRedux.Tests
             Assert.Equal(expected: 1, actual: feature.State.Count);
         }
 
-
         [Fact]
         public async Task CountStateIncrementByOneWithSubscribersTest()
         {
             var state = new CountState(0);
 
-            var feature = new Feature<CountState>(
-                state: state,
-                reducers: new IReducer<CountState>[]
-                {
-                    new IncrementReducer(),
-                });
+            var feature = new Feature<CountState>(state, reducers: new IReducer<CountState>[]
+            {
+                new IncrementReducer(),
+            });
+
+            var store = new Store(features: new IReducible[]
+            {
+                feature,
+            });
 
             var subscriber = new object();
             var observeCount = 0;
@@ -56,16 +51,6 @@ namespace MiniRedux.Tests
             }
 
             feature.StateChanged += StateChangedHandler;
-
-            var store = new Store(
-                features: new IReducible[]
-                {
-                    feature,
-                },
-                effects: new IEffect[]
-                {
-
-                });
 
             await store.Dispatch(new IncrementAction(amount: 1));
             Assert.Equal(expected: 1, actual: feature.State.Count);
