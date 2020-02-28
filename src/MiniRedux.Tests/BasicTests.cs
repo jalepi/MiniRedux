@@ -87,7 +87,7 @@ namespace MiniRedux.Tests
 
     class IncrementAction
     {
-        public IncrementAction(int amount = 1) => 
+        public IncrementAction(int amount = 1) =>
             this.Amount = amount;
 
         public int Amount { get; }

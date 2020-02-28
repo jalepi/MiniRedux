@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace MiniRedux
 {
     public class Feature<TState> : IFeature<TState>
     {
-        readonly private IEnumerable<IReducer<TState>> reducers;
+        private readonly IEnumerable<IReducer<TState>> reducers;
 
         public Feature(TState state, IEnumerable<IReducer<TState>> reducers) =>
             (this.State, this.reducers) = (state, reducers);
@@ -15,7 +14,7 @@ namespace MiniRedux
 
         public event StateChangedHandler<TState> StateChanged = (sender, e) => { };
 
-        public void Reduce<TAction>(TAction action)
+        public virtual void Reduce<TAction>(TAction action)
         {
             var currentState = this.State;
 

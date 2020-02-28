@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace MiniRedux
+﻿namespace MiniRedux
 {
     public interface IMutable<out TState>
     {
