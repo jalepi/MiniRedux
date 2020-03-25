@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace MiniRedux
 {
@@ -7,8 +7,11 @@ namespace MiniRedux
     {
         private readonly IEnumerable<IReducer<TState>> reducers;
 
-        public Feature(TState state, IEnumerable<IReducer<TState>> reducers) =>
-            (this.State, this.reducers) = (state, reducers);
+        public Feature(TState state, IEnumerable<IReducer<TState>> reducers)
+        {
+            this.State = state;
+            this.reducers = reducers;
+        }
 
         public TState State { get; private set; }
 
@@ -16,26 +19,23 @@ namespace MiniRedux
 
         public virtual void Reduce<TAction>(TAction action)
         {
-            var currentState = this.State;
+            var suitableReducers = reducers.OfType<IReducer<TState, TAction>>();
 
-            foreach (var reducer in reducers)
+            foreach (var reducer in suitableReducers)
             {
-                if (reducer is IReducer<TState, TAction> r)
-                {
-                    currentState = r.Reduce(currentState, action);
-                }
+                var nextState = reducer.Reduce(this.State, action);
+                this.SetState(nextState);
             }
 
-            this.SetState(currentState);
         }
 
         protected virtual bool SetState(TState state)
         {
-            if (!Object.ReferenceEquals(State, state))
-            {
-                var (previous, next) = (this.State, state);
-                State = next;
+            var (previous, next) = (this.State, state);
 
+            if (!EqualityComparer<TState>.Default.Equals(previous, next))
+            {
+                State = next;
                 StateChanged.Invoke(this, new StateChangeEventArgs<TState>(previous, next));
                 return true;
             }

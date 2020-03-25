@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,10 +10,17 @@ namespace MiniRedux
         private readonly IEnumerable<IReducible> features;
         private readonly IEnumerable<IEffect> effects;
 
-        public Store(IEnumerable<IReducible> features) : this(features, new IEffect[] { }) { }
+        public Store(IEnumerable<IReducible> features)
+        {
+            this.features = features;
+            this.effects = new IEffect[] { };
+        }
 
-        public Store(IEnumerable<IReducible> features, IEnumerable<IEffect> effects) =>
-            (this.features, this.effects) = (features, effects);
+        public Store(IEnumerable<IReducible> features, IEnumerable<IEffect> effects)
+        {
+            this.features = features;
+            this.effects = effects;
+        }
 
         public virtual async Task Dispatch<TAction>(TAction action) => await Dispatch(action, default);
 
@@ -23,12 +31,11 @@ namespace MiniRedux
                 feature.Reduce(action);
             }
 
-            foreach (var effect in this.effects)
+            var suitableEffects = this.effects.OfType<IEffect<TAction>>();
+
+            foreach (var effect in suitableEffects)
             {
-                if (effect is IEffect<TAction> fx)
-                {
-                    await fx.React(action, this, cancellationToken);
-                }
+                await effect.React(action, this, cancellationToken);
             }
         }
     }

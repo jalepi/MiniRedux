@@ -4,9 +4,9 @@
     {
         public abstract TState Reduce(TState state, TAction action);
 
-        public virtual TState Reduce<TSome>(TState state, TSome some)
-        {
-            return some is TAction action ? Reduce(state, action) : state;
-        }
+        public virtual TState Reduce<TSome>(TState state, TSome some) =>
+            some is TAction action 
+                ? Reduce(state, action) 
+                : state;
     }
 }
